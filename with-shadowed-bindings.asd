@@ -1,4 +1,4 @@
-(asdf:defsystem #:hexstream-project-template
+(asdf:defsystem #:with-shadowed-bindings
 
   :author "Jean-Philippe Paradis <hexstream@gmail.com>"
 
@@ -7,9 +7,10 @@
 
   :description "To be described."
 
-  :depends-on (#:map-bind)
+  :depends-on (#:map-bind
+               #:enhanced-multiple-value-bind)
 
-  :version "0.1"
+  :version "1.0"
   :serial cl:t
   :components ((:file "package")
 	       (:file "main")))

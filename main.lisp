@@ -1,79 +1,60 @@
 (in-package #:with-shadowed-bindings)
 
-(defmacro with-shadowed-bindings (bindings &body body)
-  (multiple-value-bind (variables normal-functions setf-functions)
-      (do ((bindings bindings (cdr bindings))
-	   variables
-	   normal-functions
-	   setf-functions)
-	  ((endp bindings)
-	   (flet ((frob (list)
-		    (nreverse
-		     (delete-duplicates list :test #'equal))))
-	     (values (frob variables)
-		     (frob normal-functions)
-		     (frob setf-functions))))
-	(let ((binding (first bindings)))
-	  (etypecase binding
-	    (symbol
-	     (push binding variables))
-	    ((cons (eql function)
-		   (cons symbol null))
-	     (push (second binding) normal-functions))
-	    ((cons (eql function)
-		   (cons (cons (eql setf) (cons symbol null)) null))
-	     (push (second binding) setf-functions)))))
-    (reduce
-     (lambda (bindings-and-function body)
-       (destructuring-bind (bindings function) bindings-and-function
-	 (if bindings
-	     (funcall function bindings body)
-	     body)))
-     (list
-      (list variables
-	    (lambda (names body)
-	      (let ((macro-names
-		     (mapcar (lambda (name)
-			       (gensym (symbol-name name)))
-			     names)))
-		`(macrolet
-		     ,(mapcar
-		       (lambda (name macro-name)
-			 `(,macro-name
-			   ()
-			   (error "Can't access shadowed variable ~S."
-				  ',name)))
-		       names
-		       macro-names)
-		   (symbol-macrolet
-		       ,(mapcar
-			 (lambda (name macro-name)
-			   `(,name (,macro-name)))
-			 names
-			 macro-names)
-		     ,@body)))))
-      (list normal-functions
-	    (lambda (names body)
-	      `(macrolet
-		   ,(mapcar
-		     (lambda (name)
-		       `(,name
-			 (&rest rest)
-			 (declare (ignore rest))
-			 (error "Can't access shadowed ~
-                                 function or macro ~S." ',name)))
-		     names)
-		 ,@body)))
-      (list setf-functions
-	    (lambda (bindings body)
-	      `(flet ,(mapcar
-		       (lambda (binding)
-			 `(,binding
-			   (&rest rest)
-			   (declare (ignore rest))
-			   (error "Can't access shadowed function ~S."
-				  ',binding)))
-		       bindings)
-		 ,@body))))
-     :from-end t
-     :initial-value body)))
+(defun %analyze (binding &optional env)
+  '(values kind name &rest keys &key &allow-other-keys)
+  (flet ((inner (binding)
+           ))
+    (multiple-value-bind (kind name &rest keys) (inner binding)
+      (cond (kind (apply #'values kind name keys))
+            ((consp binding)
+             ))))
+  (etypecase binding
+    (symbol (values :variable binding))
+    ((cons (eql function)
+           (cons symbol null))
+     (destructuring-bind (name &rest keys) (rest binding)
+       (apply #'values
+              (if (macro-function name env)
+                  :macro
+                  :function)
+              name
+              keys)))
+    ((cons (eql function)
+           (cons (cons (eql setf) (cons symbol null))
+                 list))
+     (destructuring-bind (function-name &rest keys) (rest binding)
+       (apply #'values :setf-function (second function-name) keys)))))
+
+(defun %add-shadowing (body kind name)
+  (ecase kind
+    (:variable
+     (let ((macro-name (gensym (symbol-name name))))
+       `(macrolet ((,macro-name ()
+                     (error "Can't access shadowed variable ~S."
+                            ',name)))
+          (symbol-macrolet ((,name (,macro-name)))
+            (declare (ignorable ,name))
+            ,@body))))
+    (:macro `(macrolet ((,name (&rest rest)
+                          (declare (ignore rest))
+                          (error "Can't access shadowed macro ~S."
+                                 ',name)))
+               (declare (ignorable ,name))
+               ,@body))
+    ((:function :setf-function)
+     (let ((name (ecase kind
+                   (:function name)
+                   (:setf-function `(setf ,name)))))
+       `(flet ((,name (&rest rest)
+                 (declare (ignore rest))
+                 (error "Can't access shadowed function ~S."
+                        ',name)))
+          (declare (ignorable #',name))
+          ,@body)))))
+
+(defmacro with-shadowed-bindings (bindings &body body &environment env)
+  (if bindings
+      (map-bind (reduce) (((binding body) bindings)
+                          (() :from-end t :initial-value body))
+        (multiple-value-call #'%add-shadowing body (%analyze binding env)))
+      `(progn ,@body)))
