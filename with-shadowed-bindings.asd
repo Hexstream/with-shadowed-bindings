@@ -12,4 +12,6 @@
   :version "1.0"
   :serial cl:t
   :components ((:file "package")
-	       (:file "main")))
+	       (:file "main"))
+
+  :in-order-to ((asdf:test-op (asdf:test-op #:with-shadowed-bindings_tests))))
