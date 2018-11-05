@@ -1,6 +1,6 @@
 (asdf:defsystem #:with-shadowed-bindings
 
-  :author "Jean-Philippe Paradis <hexstream@gmail.com>"
+  :author "Jean-Philippe Paradis <hexstream@hexstreamsoft.com>"
 
   ;; See the UNLICENSE file for details.
   :license "Public Domain"
