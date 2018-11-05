@@ -1,29 +1,18 @@
 (in-package #:with-shadowed-bindings)
 
 (defun %analyze (binding &optional env)
-  '(values kind name &rest keys &key &allow-other-keys)
-  (flet ((inner (binding)
-           ))
-    (multiple-value-bind (kind name &rest keys) (inner binding)
-      (cond (kind (apply #'values kind name keys))
-            ((consp binding)
-             ))))
+  '(values kind name)
   (etypecase binding
     (symbol (values :variable binding))
-    ((cons (eql function)
-           (cons symbol null))
-     (destructuring-bind (name &rest keys) (rest binding)
-       (apply #'values
-              (if (macro-function name env)
-                  :macro
-                  :function)
-              name
-              keys)))
-    ((cons (eql function)
-           (cons (cons (eql setf) (cons symbol null))
-                 list))
-     (destructuring-bind (function-name &rest keys) (rest binding)
-       (apply #'values :setf-function (second function-name) keys)))))
+    ((cons (eql function) (cons t null))
+     (let ((name (second binding)))
+       (etypecase name
+         (symbol (values (if (macro-function name env)
+                             :macro
+                             :function)
+                         name))
+         ((cons (eql setf) (cons symbol null))
+          (values :setf-function (second name))))))))
 
 (defun %add-shadowing (body kind name)
   (ecase kind
