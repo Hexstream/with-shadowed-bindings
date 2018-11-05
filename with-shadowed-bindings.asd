@@ -5,9 +5,9 @@
   ;; See the UNLICENSE file for details.
   :license "Public Domain"
 
-  :description "To be described."
+  :description "Allows one to explicitly shadow otherwise visible lexical bindings, making it clear that they are not referenced within, thereby reducing cognitive load."
 
-  :depends-on (#:map-bind)
+  :depends-on ("map-bind")
 
   :version "1.0"
   :serial cl:t
