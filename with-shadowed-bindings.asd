@@ -7,8 +7,7 @@
 
   :description "To be described."
 
-  :depends-on (#:map-bind
-               #:enhanced-multiple-value-bind)
+  :depends-on (#:map-bind)
 
   :version "1.0"
   :serial cl:t
