@@ -5,7 +5,7 @@
   ;; See the UNLICENSE file for details.
   :license "Public Domain"
 
-  :description "Allows one to explicitly shadow otherwise visible lexical bindings, making it clear that they are not referenced within, thereby reducing cognitive load."
+  :description "Establishes a new lexical context within which specified bindings are explicitly shadowed, making it clear that they are not referenced within, thereby reducing cognitive load."
 
   :depends-on ("map-bind")
 

@@ -1,9 +1,9 @@
 Project's home: https://www.hexstreamsoft.com/libraries/with-shadowed-bindings/
 
 
-with-shadowed-bindings allows one to explicitly shadow otherwise
-visible lexical bindings, making it clear that they are not referenced
-within, thereby reducing cognitive load.
+with-shadowed-bindings establishes a new lexical context within which
+specified bindings are explicitly shadowed, making it clear that they
+are not referenced within, thereby reducing cognitive load.
 
 
 This library is in the Public Domain.
