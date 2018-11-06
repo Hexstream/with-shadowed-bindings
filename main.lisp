@@ -35,7 +35,6 @@
       (:macro `(macrolet ((,name (&rest rest)
                             (declare (ignore rest))
                             ,invalid-access))
-                 (declare (ignorable ,name))
                  ,@body))
       (:function `(flet ((,name (&rest rest)
                            (declare (ignore rest))
