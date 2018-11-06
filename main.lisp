@@ -14,20 +14,28 @@
                   :function))
                name)))))
 
-(defun %invalid-access (kind name)
-  (error "Can't access shadowed ~A ~S."
-         (ecase kind
-           (:variable "variable")
-           (:macro "macro")
-           (:function "function"))
-         name))
+(define-condition with-shadowed-bindings:invalid-access (error)
+  ((%kind :initarg :kind
+          :reader with-shadowed-bindings:kind)
+   (%name :initarg :name
+          :reader with-shadowed-bindings:name))
+  (:report (lambda (condition stream)
+             (format stream "Can't access shadowed ~A ~S."
+                     (ecase (with-shadowed-bindings:kind condition)
+                       (:variable "variable")
+                       (:macro "macro")
+                       (:function "function"))
+                     (with-shadowed-bindings:name condition)))))
 
-(defun (setf %invalid-access) (new kind name)
+(defun with-shadowed-bindings:invalid-access (kind name)
+  (error 'invalid-access :kind kind :name name))
+
+(defun (setf with-shadowed-bindings:invalid-access) (new kind name)
   (declare (ignore new))
-  (%invalid-access kind name))
+  (with-shadowed-bindings:invalid-access kind name))
 
 (defun %add-shadowing (body kind name)
-  (let ((invalid-access `(%invalid-access ',kind ',name)))
+  (let ((invalid-access `(with-shadowed-bindings:invalid-access ',kind ',name)))
     (ecase kind
       (:variable
        `(symbol-macrolet ((,name ,invalid-access))
