@@ -14,32 +14,41 @@
          ((cons (eql setf) (cons symbol null))
           (values :setf-function (second name))))))))
 
+(defun %invalid-access (kind name)
+  (error "Can't access shadowed ~A ~S."
+         (ecase kind
+           (:variable "variable")
+           (:macro "macro")
+           ((:function :setf-function) "function"))
+         name))
+
 (defun %add-shadowing (body kind name)
-  (ecase kind
-    (:variable
-     (let ((macro-name (gensym (symbol-name name))))
-       `(macrolet ((,macro-name ()
-                     (error "Can't access shadowed variable ~S."
-                            ',name)))
-          (symbol-macrolet ((,name (,macro-name)))
-            (declare (ignorable ,name))
-            ,@body))))
-    (:macro `(macrolet ((,name (&rest rest)
-                          (declare (ignore rest))
-                          (error "Can't access shadowed macro ~S."
-                                 ',name)))
-               (declare (ignorable ,name))
-               ,@body))
-    ((:function :setf-function)
-     (let ((name (ecase kind
-                   (:function name)
-                   (:setf-function `(setf ,name)))))
-       `(flet ((,name (&rest rest)
-                 (declare (ignore rest))
-                 (error "Can't access shadowed function ~S."
-                        ',name)))
-          (declare (ignorable #',name))
-          ,@body)))))
+  (let ((invalid-access `(%invalid-access ',kind
+                                          ',(if (eq kind :setf-function)
+                                                `(setf ,name)
+                                                name))))
+    (ecase kind
+      (:variable
+       (let ((macro-name (gensym (symbol-name name))))
+         `(macrolet ((,macro-name ()
+                       ,invalid-access))
+            (symbol-macrolet ((,name (,macro-name)))
+              (declare (ignorable ,name))
+              ,@body))))
+      (:macro `(macrolet ((,name (&rest rest)
+                            (declare (ignore rest))
+                            ,invalid-access))
+                 (declare (ignorable ,name))
+                 ,@body))
+      ((:function :setf-function)
+       (let ((name (ecase kind
+                     (:function name)
+                     (:setf-function `(setf ,name)))))
+         `(flet ((,name (&rest rest)
+                   (declare (ignore rest))
+                   ,invalid-access))
+            (declare (ignorable #',name))
+            ,@body))))))
 
 (defmacro with-shadowed-bindings (bindings &body body &environment env)
   (if bindings
