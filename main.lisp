@@ -22,15 +22,16 @@
            (:function "function"))
          name))
 
+(defun (setf %invalid-access) (new kind name)
+  (declare (ignore new))
+  (%invalid-access kind name))
+
 (defun %add-shadowing (body kind name)
   (let ((invalid-access `(%invalid-access ',kind ',name)))
     (ecase kind
-      (:variable (let ((macro-name (gensym (symbol-name name))))
-                   `(macrolet ((,macro-name ()
-                                 ,invalid-access))
-                      (symbol-macrolet ((,name (,macro-name)))
-                        (declare (ignorable ,name))
-                        ,@body))))
+      (:variable `(symbol-macrolet ((,name ,invalid-access))
+                    (declare (ignorable ,name))
+                    ,@body))
       (:macro `(macrolet ((,name (&rest rest)
                             (declare (ignore rest))
                             ,invalid-access))
