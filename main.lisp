@@ -29,18 +29,16 @@
 (defun %add-shadowing (body kind name)
   (let ((invalid-access `(%invalid-access ',kind ',name)))
     (ecase kind
-      (:variable `(symbol-macrolet ((,name ,invalid-access))
-                    (declare (ignorable ,name))
-                    ,@body))
-      (:macro `(macrolet ((,name (&rest rest)
-                            (declare (ignore rest))
-                            ,invalid-access))
-                 ,@body))
-      (:function `(flet ((,name (&rest rest)
-                           (declare (ignore rest))
-                           ,invalid-access))
-                    (declare (ignorable #',name))
-                    ,@body)))))
+      (:variable
+       `(symbol-macrolet ((,name ,invalid-access))
+          (declare (ignorable ,name))
+          ,@body))
+      ((:function :macro)
+       `(flet ((,name (&rest rest)
+                 (declare (ignore rest))
+                 ,invalid-access))
+          (declare (ignorable #',name))
+          ,@body)))))
 
 (defmacro with-shadowed-bindings (bindings &body body &environment env)
   (if bindings
