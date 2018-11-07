@@ -39,7 +39,7 @@
 
       </div>
 
-      <p id="last-updated"><span>This page was last updated on </span><time datetime="2018-11-05">5 november 2018</time><span>.</span></p>
+      <p id="last-updated"><span>This page was last updated on </span><time datetime="2018-11-07">7 november 2018</time><span>.</span></p>
 
     </nav>
 
@@ -92,26 +92,9 @@
 
       <nav class="tabs">
         <ul>
-          <li><a href="#concepts">Concepts</a></li>
           <li><a href="#dictionary">Dictionary</a></li>
         </ul>
       </nav>
-
-      <section id="concepts">
-
-        <h1 class="breadcrumbs-bar">
-          <span class="section-relative-nav">
-            <a href="#concepts" class="anchor">⚓</a>
-          </span>
-          <span class="breadcrumbs">
-            <a href="#">with-shadowed-bindings</a>
-            <span class="crumb"><span class="s"> » </span><a class="here">Concepts</a></span>
-          </span>
-        </h1>
-
-        <p>Stub.</p>
-
-      </section>
 
       <section id="dictionary">
 
@@ -125,7 +108,121 @@
           </span>
         </h1>
 
-        <p>Stub.</p>
+        <nav class="tabs">
+          <ul>
+            <li><a href="#dictionary_with-shadowed-bindings"><code>with-shadowed-bindings</code></a></li>
+            <li><a href="#dictionary_invalid-access"><code>invalid-access</code></a></li>
+            <li><a href="#dictionary_kind"><code>kind</code></a></li>
+            <li><a href="#dictionary_name"><code>name</code></a></li>
+          </ul>
+        </nav>
+
+        <section id="dictionary_with-shadowed-bindings">
+
+          <h1 class="breadcrumbs-bar">
+            <span class="section-relative-nav">
+              <a href="#dictionary_with-shadowed-bindings" class="anchor">⚓</a>
+            </span>
+            <span class="breadcrumbs">
+              <a href="#dictionary" class="ellipsis">...<sub>2</sub></a>
+              <span class="crumb"><span class="s"> » </span><a class="here">with-shadowed-bindings</a></span>
+            </span>
+          </h1>
+
+          <article class="package definition">
+
+            <h1><span class="type">Package</span> <span class="name self">with-shadowed-bindings</span></h1>
+
+            <section class="description">
+              <h1>Description</h1>
+              <p>One should normally import a single symbol from this package, <code class="relevant"><a href="#dictionary_with-shadowed-bindings">with-shadowed-bindings</a></code>.<br />Any other symbols from this package should normally be explicitly qualified, such as <code class="relevant"><a href="#dictionary_invalid-access">with-shadowed-bindings:invalid-access</a></code>.<br />Don't <code>(:use)</code>!</p>
+            </section>
+
+          </article>
+
+          <article class="macro definition">
+
+            <h1><span class="type">Macro</span> <span class="name self">with-shadowed-bindings</span></h1>
+
+            <p class="args-and-retvals"><var>bindings</var> &amp;body <var>forms</var> =&gt; <var>results</var></p>
+
+            <section class="arguments-and-values">
+              <h1>Arguments and Values</h1>
+              <ul>
+                <li><var>bindings</var> -- A list.</li>
+                <li><var>forms</var> -- An implicit progn.</li>
+                <li><var>results</var> -- The values of the <var>forms</var>.</li>
+              </ul>
+            </section>
+
+            <section class="description">
+              <h1>Description</h1>
+              <p>Establishes a new lexical context within which the named <var>bindings</var> cannot be directly accessed, executes <var>forms</var> as an implicit progn within that context and returns the results.</p>
+              <p>Each <var>binding</var> names a binding to shadow, of either of the following types:</p>
+              <ul>
+                <li>A symbol names a variable or symbol-macro to shadow.</li>
+                <li>A list of 2 elements with <code>function</code> as the first element and a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#function_name" target="_blank">function name</a> as second element names a function or macro to shadow.</li>
+              </ul>
+              <p>Throws an <code class="relevant"><a href="#dictionary_invalid-access">with-shadowed-bindings:invalid-access</a></code> error if an attempt is made to access any of the shadowed <var>bindings</var> within <var>forms</var>.</p>
+              <p>For now, see the <a href="https://github.com/Hexstream/with-shadowed-bindings/blob/master/tests/tests.lisp#L12" target="_blank">unit tests</a> for examples.</p>
+            </section>
+
+          </article>
+
+        </section>
+
+        <section id="dictionary_invalid-access">
+
+          <h1 class="breadcrumbs-bar">
+            <span class="section-relative-nav">
+              <a href="#dictionary_invalid-access" class="anchor">⚓</a>
+            </span>
+            <span class="breadcrumbs">
+              <a href="#dictionary" class="ellipsis">...<sub>2</sub></a>
+              <span class="crumb"><span class="s"> » </span><a class="here">invalid-access</a></span>
+            </span>
+          </h1>
+
+          <article class="class definition">
+
+            <h1><span class="type">Condition</span> <span class="name self">with-shadowed-bindings:invalid-access</span></h1>
+            <p class="direct-superclasses">error</p>
+
+            <section class="description">
+              <h1>Description</h1>
+              <p>Thrown when an attempt is made to access a binding shadowed by <code class="relevant"><a href="#dictionary_with-shadowed-bindings">with-shadowed-bindings</a></code>.</p>
+              <p>This condition class provides two slots, one initialized by initarg <code>:kind</code> and retrieved by <code class="relevant"><a href="#dictionary_kind">with-shadowed-bindings:kind</a></code>, and another initialized by initarg <code>:name</code> and retrieved by <code class="relevant"><a href="#dictionary_name">with-shadowed-bindings:name</a></code>.</p>
+            </section>
+
+          </article>
+
+          <article class="generic-function reader definition" id="dictionary_kind">
+
+            <h1><span class="type">Generic Function</span> <span class="name self">with-shadowed-bindings:kind</span></h1>
+
+            <p class="args-and-retvals"><var>condition</var> =&gt; <var>kind</var></p>
+
+            <section class="description">
+              <h1>Description</h1>
+              <p>Returns the appropriate slot value from a <code class="relevant"><a href="#dictionary_invalid-access">with-shadowed-bindings:invalid-access</a></code> condition.</p>
+            </section>
+
+          </article>
+
+          <article class="generic-function reader definition" id="dictionary_name">
+
+            <h1><span class="type">Generic Function</span> <span class="name self">with-shadowed-bindings:name</span></h1>
+
+            <p class="args-and-retvals"><var>condition</var> =&gt; <var>name</var></p>
+
+            <section class="description">
+              <h1>Description</h1>
+              <p>Returns the appropriate slot value from a <code class="relevant"><a href="#dictionary_invalid-access">with-shadowed-bindings:invalid-access</a></code> condition.</p>
+            </section>
+
+          </article>
+
+        </section>
 
       </section>
 
