@@ -164,6 +164,8 @@
                 <li>A list of 2 elements with <code>function</code> as the first element and a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#function_name" target="_blank">function name</a> as second element names a function or macro to shadow.</li>
               </ul>
               <p>Throws an <code class="relevant"><a href="#dictionary_invalid-access">with-shadowed-bindings:invalid-access</a></code> error if an attempt is made to access any of the shadowed <var>bindings</var> within <var>forms</var>.</p>
+              <p>Currently, no attempt is made to detect if the named <var>bindings</var> to shadow are actually accessible in a parent environment.</p>
+              <p>Currently, there is no way to define new kinds of bindings that one could shadow.</p>
               <p>For now, see the <a href="https://github.com/Hexstream/with-shadowed-bindings/blob/master/tests/tests.lisp#L12" target="_blank">unit tests</a> for examples.</p>
             </section>
 
@@ -205,6 +207,7 @@
             <section class="description">
               <h1>Description</h1>
               <p>Returns the appropriate slot value from a <code class="relevant"><a href="#dictionary_invalid-access">with-shadowed-bindings:invalid-access</a></code> condition.</p>
+              <p><var>kind</var> is one of <code>:variable</code>, <code>:function</code> or <code>:macro</code>.</p>
             </section>
 
           </article>
@@ -218,6 +221,7 @@
             <section class="description">
               <h1>Description</h1>
               <p>Returns the appropriate slot value from a <code class="relevant"><a href="#dictionary_invalid-access">with-shadowed-bindings:invalid-access</a></code> condition.</p>
+              <p><var>name</var> is usually a symbol. In the case of a setf function, it would be <code>(setf <var>name</var>)</code>.</p>
             </section>
 
           </article>
