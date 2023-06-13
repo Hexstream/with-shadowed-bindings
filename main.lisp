@@ -50,7 +50,7 @@
 
 (defmacro with-shadowed-bindings (bindings &body body &environment env)
   (if bindings
-      (map-bind (reduce) (((binding body) bindings)
-                          (() :from-end t :initial-value body))
-        (multiple-value-call #'%add-shadowing body (%analyze binding env)))
+      (reduce (lambda (binding body)
+                (multiple-value-call #'%add-shadowing body (%analyze binding env)))
+              bindings :from-end t :initial-value body)
       `(progn ,@body)))

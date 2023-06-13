@@ -7,8 +7,6 @@
 
   :description "Establishes a new lexical context within which specified bindings are explicitly shadowed, making it clear that they are not referenced within, thereby reducing cognitive load."
 
-  :depends-on ("map-bind")
-
   :version "1.0"
   :serial cl:t
   :components ((:file "package")
